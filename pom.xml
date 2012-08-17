@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.agmip</groupId>
-    <artifactId>agmip-lookup</artifactId>
+    <artifactId>ace-lookup</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>agmip-lookup</name>
+    <name>ace-lookup</name>
     <url>http://maven.apache.org</url>
 
     <properties>
