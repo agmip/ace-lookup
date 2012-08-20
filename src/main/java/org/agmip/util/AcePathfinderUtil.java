@@ -24,6 +24,29 @@ import org.slf4j.LoggerFactory;
 public class AcePathfinderUtil {
     private static final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinderUtil");
 
+    public enum PathType {
+        EXPERIMENT,
+        WEATHER,
+        SOIL
+    }
+
+    /**
+     * Returns the general section of this variable (weather, soil, experiment).
+     * 
+     * @param var Variable to lookup
+     */
+    public static PathType getVariableType(String var) {
+        String path = AcePathfinder.INSTANCE.getPath(var);
+        LOG.debug("Current var: "+var+", Current Path: "+path);
+        if (path.contains("weather")) {
+            return PathType.WEATHER;
+        } else if (path.contains("soil")) {
+            return PathType.SOIL;
+        } else {
+            return PathType.EXPERIMENT;
+        }
+    }
+
     /**
      * Inserts the variable in the appropriate place in a {@link LinkedHashMap},
      * according to the AcePathfinder.
@@ -36,7 +59,6 @@ public class AcePathfinderUtil {
         String path = AcePathfinder.INSTANCE.getPath(var);
         if (path == null) return;
         String[] paths = path.split(",");
-        LOG.debug("Number of paths: "+paths.length);
         int l = paths.length;
         int index;
         for(int i=0; i < l; i++) {
@@ -59,7 +81,6 @@ public class AcePathfinderUtil {
                             if( d.containsKey("event") ) {
                                 if ( ! ((String) d.get("event")).equals(temp[2])) {
                                     // Uh oh, we have a new event without newRecord being called
-                                    LOG.error("newRecord should have been called");
                                     newRecord(m,  paths[i]);
                                     d = (LinkedHashMap) a.get(a.size()-1);
                                     d.put("event", temp[2]);
@@ -70,14 +91,13 @@ public class AcePathfinderUtil {
                             }
                         }
                         if( d.containsKey(var) ) {
-                            LOG.error("newRecord probably should have been called");
                             newRecord(m, paths[i]);
                             d = (LinkedHashMap) a.get(a.size()-1);
-                            d.put("event", temp[2]);
+                            if (isEvent) d.put("event", temp[2]);
                         }
                         d.put(var, val);
                     } else {
-                        // This is a bucket-level, non-nested value.
+                        // This is a bucket-level, non-series value.
                         buildNestedBuckets(m, paths[i]);
                         LinkedHashMap pointer = traverseToPoint(m, paths[i]);
                         pointer.put(var, val);
@@ -88,7 +108,7 @@ public class AcePathfinderUtil {
     }
 
     /**
-     * Creates a new record in a multi-line dataset space, such as daily 
+     * Creates a new record in a series, such as daily 
      * weather records, soil layers, etc. If the multi-line dataset space
      * is not already in the <pre>m</pre> parameter, it will be created.
      *
@@ -97,26 +117,19 @@ public class AcePathfinderUtil {
      *             supported for this field.
      */
     public static void newRecord(LinkedHashMap m, String path) {
-        LOG.debug("Creating new record");
         if( path != null ) {
             String[] paths = path.split(",");
             int l = paths.length;
             for(int i=0; i < l; i++) {
                 if( paths[i].contains("@") ) {
-                    LOG.info("newRecord() needs to build out a nested path");
                     String temp[] = paths[i].split("[@!]");
                     buildPath(m, paths[i]);
                     LinkedHashMap pointer = traverseToPoint(m, temp[0]);
                     ArrayList a = (ArrayList) pointer.get(temp[1]);
                     a.add(new LinkedHashMap());
-                    LOG.info("newRecord() results: "+m);
-                } else {
-                    LOG.info("newRecord() has nothing to do with this path");
-                }
+                } 
             }
-        } else {
-            LOG.error("newRecord() was not provided a path");
-        }
+        } 
     }
 
     /**
@@ -146,9 +159,7 @@ public class AcePathfinderUtil {
                 if( ! pointer.containsKey(d) ) 
                     pointer.put(d, new ArrayList());
             }
-        } else {
-            LOG.info("buildPath() was unnecessarily called");
-        }
+        } 
     }
 
     /**

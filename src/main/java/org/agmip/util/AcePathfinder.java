@@ -1,9 +1,9 @@
 package org.agmip.util.acepathfinder;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -19,8 +19,10 @@ public enum AcePathfinder {
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinder");
 
     AcePathfinder() {
-        LOG.debug("Loading the AcePathfinder");
-        loadFromEmbeddedCSV();
+        InputStream master = getClass().getClassLoader().getResourceAsStream("pathfinder.csv");
+        InputStream observed = getClass().getClassLoader().getResourceAsStream("obs_pathfinder.csv");
+        loadFromEmbeddedCSV(master);
+        loadFromEmbeddedCSV(observed);
     }
 
     public String getPath(String lookup) {
@@ -31,29 +33,24 @@ public enum AcePathfinder {
         pathfinder.put(lookup.toLowerCase(), path);
     }
 
-    private void loadFromEmbeddedCSV() {
-        LOG.debug("Starting the CSV Parser");
-        long startTime = System.currentTimeMillis();
+    private void loadFromEmbeddedCSV(InputStream res) {
         try {
-            URL resource = this.getClass().getResource("/pathfinder.csv");
-            if( resource != null ) {
-                CSVReader reader = new CSVReader(new FileReader(resource.getPath()));
+            if( res != null ) {
+                CSVReader reader = new CSVReader(new InputStreamReader(res));
                 String[] line;
                 reader.readNext(); // Skip the first line
                 while(( line = reader.readNext()) != null) {
                     if(! line[23].equals("-2") ) {
                         String path = setGroupMatch(line[15]);
-                        if(line[4].toLowerCase().equals("wst_id")) {
+                        if(line[2].toLowerCase().equals("wst_id")) {
                             if( path != null ) path = ",weather";
-                        } else if (line[4].toLowerCase().equals("soil_id")) {
+                        } else if (line[2].toLowerCase().equals("soil_id")) {
                             if( path != null ) path = ",soil";
                         }
                         // if( pathfinder.containsKey(line[4].toLowerCase()) ) LOG.error("Conflict with variable: "+line[0]+" Original Value: "+getPath(line[0])+" New Value: "+path);
                         if( path != null ) {
-                            setPath(line[4], path);
-                        } // else {
-                        //    LOG.debug("Skipping "+line[4]);
-                        // }
+                            setPath(line[2], path);
+                        } 
                     }
                 }
                 reader.close();
@@ -63,9 +60,6 @@ public enum AcePathfinder {
         } catch(IOException ex) {
             LOG.debug(ex.toString());
             throw new RuntimeException(ex);
-        } finally {
-            long endTime = System.currentTimeMillis();
-            LOG.debug("Parser runtime: "+(endTime-startTime+" ms"));
         }
     }
 

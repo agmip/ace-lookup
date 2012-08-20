@@ -2,6 +2,7 @@ package org.agmip.util.acepathfinder;
 
 import java.util.LinkedHashMap;
 
+import org.agmip.util.acepathfinder.AcePathfinderUtil.PathType;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -164,5 +165,23 @@ public class Tests {
         AcePathfinderUtil.insertValue(testMap, var6, val6);
 
         LOG.info("insertMulti: "+testMap.toString());
+    }
+
+    @Test
+    public void pathTypeTest() {
+        PathType p1 = PathType.EXPERIMENT;
+        PathType p2 = PathType.WEATHER;
+        PathType p3 = PathType.SOIL;
+
+        assertEquals(AcePathfinderUtil.getVariableType("exname"), p1);
+        assertEquals(AcePathfinderUtil.getVariableType("tmin"), p2);
+        assertEquals(AcePathfinderUtil.getVariableType("salb"), p3);
+    }
+
+    @Test
+    public void observedTest() {
+        String path = AcePathfinder.INSTANCE.getPath("hwah");
+        assertEquals(path, "observed");
+        LOG.info("Ace w/ obs: "+AcePathfinder.INSTANCE.peekAtPathfinder());
     }
 }
