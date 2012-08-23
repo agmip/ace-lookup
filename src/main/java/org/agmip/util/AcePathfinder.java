@@ -16,6 +16,7 @@ public enum AcePathfinder {
     INSTANCE;
 
     private final LinkedHashMap<String, String> pathfinder = new LinkedHashMap();
+    private final ArrayList<String> datefinder = new ArrayList();
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinder");
 
     AcePathfinder() {
@@ -31,6 +32,10 @@ public enum AcePathfinder {
 
     public void setPath(String lookup, String path) {
         pathfinder.put(lookup.toLowerCase(), path);
+    }
+
+    public boolean isDate(String lookup) {
+        return datefinder.contains(lookup);
     }
 
     private void loadFromEmbeddedCSV(InputStream res) {
@@ -51,6 +56,11 @@ public enum AcePathfinder {
                         if( path != null ) {
                             setPath(line[2], path);
                         } 
+                        if (line[8].toLowerCase().equals("date")) {
+                            datefinder.add(line[2].toLowerCase());
+                        } else if (line[2].toLowerCase().equals("hadat")) {
+                            LOG.debug("KKLASJDLKAJFDLKJFLKDJLKASJFDLKJFLKJD::: HADAT::"+line[8]);
+                        }
                     }
                 }
                 reader.close();
@@ -69,7 +79,7 @@ public enum AcePathfinder {
             if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 ) {
                 // Global bucket
                 return "";
-            } else if ( ( id >= 5011 && id <= 5013 ) || id == 5041 ) {
+            } else if ( ( id >= 5001 && id <= 5013 ) || id == 5041 ) {
                 // Weather Global bucket
                 return "weather";
             } else if ( id == 5052 ) {
@@ -123,5 +133,9 @@ public enum AcePathfinder {
 
     LinkedHashMap peekAtPathfinder() {
         return pathfinder;
+    }
+
+    public ArrayList peekAtDatefinder() {
+        return datefinder;
     }
 }

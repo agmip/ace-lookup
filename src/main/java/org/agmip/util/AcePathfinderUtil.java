@@ -46,6 +46,15 @@ public class AcePathfinderUtil {
             return PathType.EXPERIMENT;
         }
     }
+    
+    /**
+     * Returns if the variable is a date.
+     *
+     * @param var Variable to check
+     */
+    public boolean isDate(String var) {
+        return AcePathfinder.INSTANCE.isDate(var);
+    }
 
     /**
      * Inserts the variable in the appropriate place in a {@link LinkedHashMap},
@@ -95,7 +104,11 @@ public class AcePathfinderUtil {
                             d = (LinkedHashMap) a.get(a.size()-1);
                             if (isEvent) d.put("event", temp[2]);
                         }
-                        d.put(var, val);
+                        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
+                            d.put("date", val);
+                        } else {
+                            d.put(var, val);
+                        }
                     } else {
                         // This is a bucket-level, non-series value.
                         buildNestedBuckets(m, paths[i]);
