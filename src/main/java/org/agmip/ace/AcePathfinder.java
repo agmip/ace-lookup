@@ -1,11 +1,11 @@
-package org.agmip.util.acepathfinder;
+package org.agmip.ace;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +15,8 @@ import au.com.bytecode.opencsv.CSVReader;
 public enum AcePathfinder {
     INSTANCE;
 
-    private final LinkedHashMap<String, String> pathfinder = new LinkedHashMap();
-    private final ArrayList<String> datefinder = new ArrayList();
+    private final HashMap<String, String> pathfinder = new HashMap<String, String>();
+    private final ArrayList<String> datefinder = new ArrayList<String>();
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinder");
 
     AcePathfinder() {
@@ -27,7 +27,12 @@ public enum AcePathfinder {
     }
 
     public String getPath(String lookup) {
-        return pathfinder.get(lookup.toLowerCase());
+    	if (lookup != null ) {
+    		return pathfinder.get(lookup.toLowerCase());
+    	} else {
+    		LOG.error("Passed a null to getPath()");
+    		return null;
+    	}
     }
 
     public void setPath(String lookup, String path) {
@@ -58,8 +63,6 @@ public enum AcePathfinder {
                         } 
                         if (line[8].toLowerCase().equals("date")) {
                             datefinder.add(line[2].toLowerCase());
-                        } else if (line[2].toLowerCase().equals("hadat")) {
-                            LOG.debug("KKLASJDLKAJFDLKJFLKDJLKASJFDLKJFLKJD::: HADAT::"+line[8]);
                         }
                     }
                 }
@@ -115,12 +118,21 @@ public enum AcePathfinder {
             } else if ( id == 2141 || id == 2142 ) {
                 // Events - harvest
                 return "management@events!harvest";
+            } else if ( id == 2091 || id == 2092 ) {
+                // Events - organic material
+                return "management@events!organic-materials";
+            } else if ( id == 2111 || id == 2112 ) {
+                // Events - chemical
+                return "management@events!chemicals";
+            } else if ( id == 2101 || id == 2102 ) {
+                // Events - mulch
+                return "management@events!mulch";
             } else if ( id >= 2502 && id <= 2510 ) {
                 // Observed summary data
                 return "observed";
             } else if ( id >= 2511 && id <= 2599 ) {
                 // Observed time series data
-                return "observed@time_series";
+                return "observed@timeSeries";
             } else {
                 // Ignored!
             }
@@ -131,11 +143,11 @@ public enum AcePathfinder {
         return null;
     }
 
-    LinkedHashMap peekAtPathfinder() {
+    HashMap<String, String> peekAtPathfinder() {
         return pathfinder;
     }
 
-    public ArrayList peekAtDatefinder() {
+    public ArrayList<String> peekAtDatefinder() {
         return datefinder;
     }
 }

@@ -1,10 +1,12 @@
-package org.agmip.util.acepathfinder;
+package org.agmip.ace.util;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.agmip.ace.AcePathfinder;
 
 
 /**
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * The <i>path</i>, for the purposes of this class, is formated as:
  * <pre>a@b!c,a@b!c,...</pre>
  * <ul>
- * <li>a - nested bucket(s) seperated by <pre>:</pre> [<pre>LinkedHashMap</pre>]</li>
+ * <li>a - nested bucket(s) seperated by <pre>:</pre> [<pre>HashMap</pre>]</li>
  * <li>b - series data container [<pre>ArrayList</pre>]</li>
  * <li>c - event-based series data record [<pre>&lt;String,String&gt; = &lt;"event",c&gt;</pre></li>
  * </ul>
@@ -25,10 +27,16 @@ public class AcePathfinderUtil {
     private static final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinderUtil");
 
     public enum PathType {
+        UNKNOWN,
         EXPERIMENT,
         WEATHER,
         SOIL
     }
+
+    public static AcePathfinder getInstance() {
+        return AcePathfinder.INSTANCE;
+    }
+
 
     /**
      * Returns the general section of this variable (weather, soil, experiment).
@@ -36,11 +44,22 @@ public class AcePathfinderUtil {
      * @param var Variable to lookup
      */
     public static PathType getVariableType(String var) {
-        String path = AcePathfinder.INSTANCE.getPath(var);
+        if (var == null) {
+            return PathType.UNKNOWN;
+        }
+        //String path = AcePathfinder.INSTANCE.getPath(var);
+        AcePathfinder instance = getInstance();
+        String path = instance.getPath(var);
         LOG.debug("Current var: "+var+", Current Path: "+path);
+        if (path == null) {
+        	return PathType.UNKNOWN;
+        }
         if (path.contains("weather")) {
             return PathType.WEATHER;
         } else if (path.contains("soil")) {
+            if (path.contains("initial_conditions")) {
+                return PathType.EXPERIMENT;
+            }
             return PathType.SOIL;
         } else {
             return PathType.EXPERIMENT;
@@ -53,23 +72,42 @@ public class AcePathfinderUtil {
      * @param var Variable to check
      */
     public boolean isDate(String var) {
-        return AcePathfinder.INSTANCE.isDate(var);
+    	if ( var != null ) {
+    		return AcePathfinder.INSTANCE.isDate(var);
+    	} else {
+    		return false;
+    	}
     }
 
     /**
-     * Inserts the variable in the appropriate place in a {@link LinkedHashMap},
+     * Inserts the variable in the appropriate place in a {@link HashMap},
      * according to the AcePathfinder.
      *
-     * @param m the LinkedHashMap to add the variable to.
-     * @param var the variable to lookup in the AcePathfinder
-     * @param val the value to insert into the LinkedHashMap
+     * @param m the HashMap to add the variable to.
+     * @param var Variable to lookup
+     * @param val the value to insert into the HashMap
      */
-    public static void insertValue(LinkedHashMap m, String var, String val) {
-        String path = AcePathfinder.INSTANCE.getPath(var);
-        if (path == null) return;
+    public static void insertValue(HashMap m, String var, String val) {
+        insertValue(m, var, val, null);
+    }
+
+    /**
+     * Inserts the variable in the appropriate place in a {@link HashMap},
+     * according to the AcePathfinder.
+     *
+     * @param m the HashMap to add the variable to.
+     * @param var the variable to lookup in the AcePathfinder
+     * @param val the value to insert into the HashMap
+     * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
+     */
+    public static void insertValue(HashMap m, String var, String val, String path) {
+        if (m == null || var == null) { return; }
+        if (path == null) {
+            path = AcePathfinder.INSTANCE.getPath(var);
+        }
+        if (path == null) { return; }
         String[] paths = path.split(",");
         int l = paths.length;
-        int index;
         for(int i=0; i < l; i++) {
             if( paths[i] != null ) {
                 if( paths[i].equals("") ) {
@@ -81,17 +119,17 @@ public class AcePathfinderUtil {
                         // This is a nested value
                         String[] temp = paths[i].split("[!@]"); 
                         if( paths[i].contains("!") ) isEvent = true;
-                        LinkedHashMap pointer = traverseToPoint(m, temp[0]);
+                        HashMap pointer = traverseToPoint(m, temp[0]);
                         ArrayList a = (ArrayList) pointer.get(temp[1]);
                         if( a.isEmpty() )
                             newRecord(m, paths[i]);
-                        LinkedHashMap d = (LinkedHashMap) a.get(a.size()-1);
+                        HashMap d = (HashMap) a.get(a.size()-1);
                         if( isEvent ) {
                             if( d.containsKey("event") ) {
                                 if ( ! ((String) d.get("event")).equals(temp[2])) {
                                     // Uh oh, we have a new event without newRecord being called
                                     newRecord(m,  paths[i]);
-                                    d = (LinkedHashMap) a.get(a.size()-1);
+                                    d = (HashMap) a.get(a.size()-1);
                                     d.put("event", temp[2]);
                                 }
                             } else {
@@ -99,20 +137,19 @@ public class AcePathfinderUtil {
                                 d.put("event", temp[2]);
                             }
                         }
-                        if( d.containsKey(var) ) {
+                        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
+                            var = "date";
+                        }
+                        if (d.containsKey(var)) {
                             newRecord(m, paths[i]);
-                            d = (LinkedHashMap) a.get(a.size()-1);
+                            d = (HashMap) a.get(a.size()-1);
                             if (isEvent) d.put("event", temp[2]);
                         }
-                        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
-                            d.put("date", val);
-                        } else {
-                            d.put(var, val);
-                        }
+                        d.put(var, val);
                     } else {
                         // This is a bucket-level, non-series value.
                         buildNestedBuckets(m, paths[i]);
-                        LinkedHashMap pointer = traverseToPoint(m, paths[i]);
+                        HashMap pointer = traverseToPoint(m, paths[i]);
                         pointer.put(var, val);
                     }
                 }
@@ -125,11 +162,11 @@ public class AcePathfinderUtil {
      * weather records, soil layers, etc. If the multi-line dataset space
      * is not already in the <pre>m</pre> parameter, it will be created.
      *
-     * @param m The {@link LinkedHashMap} to be modified.
+     * @param m The {@link HashMap} to be modified.
      * @param path The path to lookup and see if a multi-line record is
      *             supported for this field.
      */
-    public static void newRecord(LinkedHashMap m, String path) {
+    public static void newRecord(HashMap m, String path) {
         if( path != null ) {
             String[] paths = path.split(",");
             int l = paths.length;
@@ -137,9 +174,9 @@ public class AcePathfinderUtil {
                 if( paths[i].contains("@") ) {
                     String temp[] = paths[i].split("[@!]");
                     buildPath(m, paths[i]);
-                    LinkedHashMap pointer = traverseToPoint(m, temp[0]);
+                    HashMap pointer = traverseToPoint(m, temp[0]);
                     ArrayList a = (ArrayList) pointer.get(temp[1]);
-                    a.add(new LinkedHashMap());
+                    a.add(new HashMap());
                 } 
             }
         } 
@@ -153,7 +190,7 @@ public class AcePathfinderUtil {
      * @param m The map to create the path inside of.
      * @param p The full path to create.
      */
-    private static void buildPath(LinkedHashMap m, String p) {
+    private static void buildPath(HashMap m, String p) {
         boolean isEvent = false;
         if(p.contains("@")) {
             String[] components = p.split("@");
@@ -161,7 +198,7 @@ public class AcePathfinderUtil {
             buildNestedBuckets(m, components[0]);
             if(cl == 2) {
                 if(p.contains("!")) isEvent = true;
-                LinkedHashMap pointer = traverseToPoint(m, components[0]);
+                HashMap pointer = traverseToPoint(m, components[0]);
                 String d;
                 if(isEvent) {
                     String[] temp = components[1].split("!");
@@ -180,18 +217,18 @@ public class AcePathfinderUtil {
      * @param m The map in which to build the nested structure.
      * @param p The nested bucket structure to create
      */
-    private static void buildNestedBuckets(LinkedHashMap m, String p) {
+    private static void buildNestedBuckets(HashMap m, String p) {
         String[] components = p.split(":");
         int cl = components.length;
         if(cl == 1) {
             if( ! m.containsKey(components[0]) )
-                m.put(components[0], new LinkedHashMap());
+                m.put(components[0], new HashMap());
         } else {
-            LinkedHashMap temp = m;
+            HashMap temp = m;
             for(int i=0; i < cl; i++) {
                 if( ! temp.containsKey(components[i]) )
-                    temp.put(components[i], new LinkedHashMap());
-                temp = (LinkedHashMap) temp.get(components[i]);
+                    temp.put(components[i], new HashMap());
+                temp = (HashMap) temp.get(components[i]);
             }
         }
     }
@@ -202,12 +239,51 @@ public class AcePathfinderUtil {
      * @param p Path to traverse to
      * @return A reference to the point in the map.
      */
-    private static LinkedHashMap traverseToPoint(LinkedHashMap m, String p) {
-        LinkedHashMap pointer = m;
+    public static HashMap traverseToPoint(HashMap m, String p) {
+        HashMap pointer = m;
         String[] b = p.split(":");
         int bl = b.length;
-        for(int i=0; i < bl; i++)
-            pointer = (LinkedHashMap) pointer.get(b[i]);
+        for(int i=0; i < bl; i++) {
+            pointer = (HashMap) pointer.get(b[i]);
+        }
         return pointer;
+    }
+
+
+    /**
+     * Renames a date variable for an event
+     */
+    public static String setEventDateVar(String var, boolean isEvent) {
+        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
+            var = "date";
+        }
+        return var;
+    }
+
+    /**
+     * Renames a date variable from an event
+     */
+    public static String getEventDateVar(String event, String var) {
+        if (event == null || var.endsWith("date") || var.endsWith("dat")) return var;
+        if (event.equals("planting")) {
+            var = "pdate";
+        } else if (event.equals("irrigation")) {
+            var = "idate";
+        } else if (event.equals("fertilizer")) {
+            var = "fedate";
+        } else if (event.equals("tillage")) {
+            var = "tdate";
+        } else if (event.equals("harvest")) {
+            var = "hadat";
+        } else if (event.equals("organic-materials")) {
+            var = "omdat";
+        } else if (event.equals("chemicals")) {
+            var = "cdate";
+        } else if (event.equals("mulch-apply")) {
+            var = "mladat";
+        } else if (event.equals("mulch-remove")) {
+            var = "mlrdat";
+        }
+        return var;
     }
 }

@@ -1,8 +1,10 @@
-package org.agmip.util.acepathfinder;
+package org.agmip.ace.util;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 
-import org.agmip.util.acepathfinder.AcePathfinderUtil.PathType;
+import org.agmip.ace.AcePathfinder;
+import org.agmip.ace.util.AcePathfinderUtil;
+import org.agmip.ace.util.AcePathfinderUtil.PathType;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
@@ -11,15 +13,16 @@ import org.slf4j.LoggerFactory;
 
 public class Tests {
     private static Logger LOG = LoggerFactory.getLogger("org.agmip.util.Tests");
+    private AcePathfinder pathfinder = AcePathfinderUtil.getInstance();
     
     @Test
     public void testPathfinderInit() {
-        AcePathfinder.INSTANCE.getPath("blank");
+        pathfinder.getPath("blank");
     }
 
     @Test
     public void blankPathTest() {
-        String blankPath = AcePathfinder.INSTANCE.getPath("exname");
+        String blankPath = pathfinder.getPath("exname");
         LOG.info("exname: "+blankPath);
         if( blankPath == null ) {
             LOG.info( "exname is NULL" );
@@ -30,7 +33,7 @@ public class Tests {
 
     @Test
     public void multiPathTest() {
-        String basepath = AcePathfinder.INSTANCE.getPath("wst_id");
+        String basepath = pathfinder.getPath("wst_id");
         if( basepath.contains(",") ) {
             LOG.info("Found a multipath");
             String[] paths = basepath.split(",");
@@ -45,14 +48,13 @@ public class Tests {
         }
     }
 
-
     @Test
     public void insertionTest() {
         LOG.debug("INSERTION TEST!!!");
         String var = "exname";
         String val = "Test Experiment";
-        LinkedHashMap testMap = new LinkedHashMap();
-        LinkedHashMap compareMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
+        HashMap compareMap = new HashMap();
         compareMap.put(var, val);
         AcePathfinderUtil.insertValue(testMap, var, val);
         assertEquals("Maps match", testMap, compareMap);
@@ -63,9 +65,9 @@ public class Tests {
         LOG.debug("BUCKET INSERT TEST!!!!");
         String var = "icdat";
         String val = "19232323";
-        LinkedHashMap testMap = new LinkedHashMap();
-        LinkedHashMap nestMap = new LinkedHashMap();
-        LinkedHashMap compareMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
+        HashMap nestMap = new HashMap();
+        HashMap compareMap = new HashMap();
 
         nestMap.put(var, val);
         compareMap.put("initial_conditions", nestMap);
@@ -77,9 +79,9 @@ public class Tests {
     public void insertionMutliPathTest() {
         String var = "wst_id";
         String val = "123abc";
-        LinkedHashMap testMap = new LinkedHashMap();
-        LinkedHashMap nestMap = new LinkedHashMap();
-        LinkedHashMap compareMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
+        HashMap nestMap = new HashMap();
+        HashMap compareMap = new HashMap();
 
         nestMap.put(var, val);
         compareMap.put(var, val);
@@ -95,9 +97,9 @@ public class Tests {
         String var = "pdate";
         String val = "12345678";
 
-        LinkedHashMap testMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
 
-        AcePathfinderUtil.newRecord(testMap, AcePathfinder.INSTANCE.getPath(var));
+        AcePathfinderUtil.newRecord(testMap, pathfinder.getPath(var));
         LOG.info("New record: "+testMap.toString());
     }
 
@@ -105,7 +107,7 @@ public class Tests {
     public void nestedPathTest() {
         String path = "a:b:c@d!e";
 
-        LinkedHashMap testMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
         AcePathfinderUtil.newRecord(testMap, path);
         LOG.info("nestedPath: "+testMap.toString());
     }
@@ -115,9 +117,9 @@ public class Tests {
         String var = "pdate";
         String val = "12345678";
 
-        LinkedHashMap testMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
 
-        AcePathfinderUtil.newRecord(testMap, AcePathfinder.INSTANCE.getPath(var));
+        AcePathfinderUtil.newRecord(testMap, pathfinder.getPath(var));
         AcePathfinderUtil.insertValue(testMap, var, val);
         LOG.info("insertNested: "+testMap.toString());
     }
@@ -130,10 +132,10 @@ public class Tests {
         String var2 = "hadat";
         String val2 = "987654321";
 
-        LinkedHashMap testMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
 
         AcePathfinderUtil.insertValue(testMap, var1, val1);
-        AcePathfinderUtil.newRecord(testMap, AcePathfinder.INSTANCE.getPath(var1));
+        AcePathfinderUtil.newRecord(testMap, pathfinder.getPath(var1));
         AcePathfinderUtil.insertValue(testMap, var1, val2);
         AcePathfinderUtil.insertValue(testMap, var2, val2);
         LOG.info("insertMultipleEvents: "+testMap.toString());
@@ -154,11 +156,11 @@ public class Tests {
         String var6 = "invalid";
         String val6 = "invalid";
 
-        LinkedHashMap testMap = new LinkedHashMap();
+        HashMap testMap = new HashMap();
 
         AcePathfinderUtil.insertValue(testMap, var4, val4);
         AcePathfinderUtil.insertValue(testMap, var2, val2);
-        AcePathfinderUtil.newRecord(testMap, AcePathfinder.INSTANCE.getPath(var1));
+        AcePathfinderUtil.newRecord(testMap, pathfinder.getPath(var1));
         AcePathfinderUtil.insertValue(testMap, var1, val1);
         AcePathfinderUtil.insertValue(testMap, var3, val3);
         AcePathfinderUtil.insertValue(testMap, var5, val5);
@@ -180,8 +182,17 @@ public class Tests {
 
     @Test
     public void observedTest() {
-        String path = AcePathfinder.INSTANCE.getPath("hwah");
+        String path = pathfinder.getPath("hwah");
         assertEquals(path, "observed");
-        LOG.info("Ace w/ obs: "+AcePathfinder.INSTANCE.peekAtPathfinder());
+    }
+
+    @Test
+    public void customPathsTest() {
+        HashMap<String,String> testMap = new HashMap<String,String>();
+
+        AcePathfinderUtil.insertValue(testMap, "custom_var", "blank", "");
+        AcePathfinderUtil.insertValue(testMap, "custom_var2", "not blank", "custom");
+        AcePathfinderUtil.insertValue(testMap, "nested_custom", "oooh", "custom@nest");
+        LOG.info("customPath: "+testMap.toString());
     }
 }

@@ -8,7 +8,39 @@
     <packaging>jar</packaging>
 
     <name>ace-lookup</name>
-    <url>http://maven.apache.org</url>
+    <url>http://www.agmip.org/</url>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <issueManagement>
+        <url>https://github.com/agmip/ace-lookup/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>BSD License</name>
+            <url>https://raw.github.com/agmip/ace-lookup/master/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://github.com/agmip/ace-lookup</url>
+        <connection>scm:git:git://github.com/agmip/ace-lookup.git</connection>
+        <developerConnection>scm:git:git@github.com:agmip/ace-lookup.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <email>cvillalobos@ufl.edu</email>
+            <name>Christopher Villalobos</name>
+            <url>https://github.com/frostbytten</url>
+            <id>frostbytten</id>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,9 +48,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.agmip</groupId>
+            <artifactId>agmip-core</artifactId>
+            <version>0.15-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.6</version>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.7</version>
         </dependency>
         <dependency>
             <groupId>net.sf.opencsv</groupId>
