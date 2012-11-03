@@ -6,7 +6,7 @@ import org.agmip.ace.AcePathfinder;
 import org.agmip.ace.util.AcePathfinderUtil;
 import org.agmip.ace.util.AcePathfinderUtil.PathType;
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,5 +194,11 @@ public class Tests {
         AcePathfinderUtil.insertValue(testMap, "custom_var2", "not blank", "custom");
         AcePathfinderUtil.insertValue(testMap, "nested_custom", "oooh", "custom@nest");
         LOG.info("customPath: "+testMap.toString());
+    }
+
+    public void checkNewFields() {
+        String test = "";
+        assertNotNull("Path is null", test);
+        assertEquals("Paths do not match", test, AcePathfinder.INSTANCE.getPath("sdat"));
     }
 }
