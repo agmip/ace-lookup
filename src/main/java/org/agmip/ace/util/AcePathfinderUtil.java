@@ -71,7 +71,7 @@ public class AcePathfinderUtil {
      *
      * @param var Variable to check
      */
-    public boolean isDate(String var) {
+    public static boolean isDate(String var) {
     	if ( var != null ) {
     		return AcePathfinder.INSTANCE.isDate(var);
     	} else {
@@ -254,6 +254,7 @@ public class AcePathfinderUtil {
      * Renames a date variable for an event
      */
     public static String setEventDateVar(String var, boolean isEvent) {
+        var = var.toLowerCase();
         if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
             var = "date";
         }
@@ -264,6 +265,7 @@ public class AcePathfinderUtil {
      * Renames a date variable from an event
      */
     public static String getEventDateVar(String event, String var) {
+        var = var.toLowerCase();
         if (event == null || var.endsWith("date") || var.endsWith("dat")) return var;
         if (event.equals("planting")) {
             var = "pdate";
@@ -275,7 +277,7 @@ public class AcePathfinderUtil {
             var = "tdate";
         } else if (event.equals("harvest")) {
             var = "hadat";
-        } else if (event.equals("organic-materials")) {
+        } else if (event.equals("organic_matter")) {
             var = "omdat";
         } else if (event.equals("chemicals")) {
             var = "cdate";
