@@ -28,6 +28,10 @@ public enum AcePathfinder {
 
     public String getPath(String lookup) {
     	if (lookup != null ) {
+            // Temporary hardwire
+            if (lookup.toLowerCase().endsWith("cul_id")) {
+                return pathfinder.get("cul_id");
+            }
     		return pathfinder.get(lookup.toLowerCase());
     	} else {
     		LOG.error("Passed a null to getPath()");
