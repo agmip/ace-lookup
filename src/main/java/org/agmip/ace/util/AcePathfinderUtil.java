@@ -105,7 +105,7 @@ public class AcePathfinderUtil {
         if (path == null) {
             path = AcePathfinder.INSTANCE.getPath(var);
         }
-        if (path == null) { return; }
+        if (path == null) { path = ""; }
         String[] paths = path.split(",");
         int l = paths.length;
         for(int i=0; i < l; i++) {
