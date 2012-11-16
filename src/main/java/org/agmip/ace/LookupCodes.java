@@ -11,14 +11,11 @@ import org.agmip.ace.LookupCodesEnum;
 public class LookupCodes {
     private static final Logger LOG = LoggerFactory.getLogger("LookupCodes.class");
 
-    public static LookupCodesEnum getInstance() {
-        return LookupCodesEnum.INSTANCE;
-    }
-
     /**
      * 
      */
     public static String lookupCode(String variable, String origCode, String key, String model) {
+        LOG.debug("Running lookupCode()");
         String lookupString = "";
 
         if (model == null) {
@@ -44,12 +41,9 @@ public class LookupCodes {
             // Lookup the model specific version first
             String modelString = modelLookupCode(model, variable, code);
             lookupString = variable+"_"+modelString;
-            LOG.debug("Model lookup: {}",modelString);
         } else {
             lookupString = variable+"_"+code;
         }
-
-        LOG.debug("Entry lookup: {}", lookupString);
 
         HashMap<String, String> entry = new HashMap<String, String>();
         entry = LookupCodesEnum.INSTANCE.aceLookup(lookupString);
@@ -74,6 +68,7 @@ public class LookupCodes {
     }
 
     public static String modelLookupCode(String model, String variable, String code) {
+        LOG.debug("Running modelLookupCode()");
         model    = model.toLowerCase();
         variable = variable.toLowerCase();
         code     = code.toLowerCase();

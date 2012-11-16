@@ -249,6 +249,14 @@ public class AcePathfinderUtil {
         return pointer;
     }
 
+    public static String getPathOr(HashMap<String, Object> map, String var, String alternatePath) {
+        String path = AcePathfinder.INSTANCE.getPath(var);
+        if (path == null) {
+            return alternatePath;
+        } else {
+            return path;
+        }
+    }
 
     /**
      * Renames a date variable for an event
