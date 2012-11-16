@@ -32,6 +32,7 @@ public enum LookupCodesEnum {
     }
 
     private void loadEmbeddedCSVFile(InputStream stream) {
+        LOG.debug("Loading embedded CSV for Lookup Codes");
         try {
             if (stream != null) {
                 LOG.debug("Found streaming file");
@@ -76,16 +77,24 @@ public enum LookupCodesEnum {
 
                 while ((line = reader.readNext()) != null) {
                     HashMap<String, String> entries = new HashMap<String, String>();
-                    String currentVar = "";
+                    ArrayList<String> currentVars = new ArrayList<String>();
+                    String currentCode = "";
                     int modelId = 0;
                     int colId = line.length;
                     for(int i=0; i < colId; i++) {
                         if (columnIndex.get(i).equals("")) {
-                        } else if(columnIndex.get(i).equals("variable") || columnIndex.get(i).equals("code")) {
-                            if (!currentVar.equals("")) {
-                                currentVar += "_";
+                        } else if(columnIndex.get(i).equals("variable")) {
+                            // This SHOULD come before the code (always)
+                            String[] vars = line[i].toLowerCase().split("[,]");
+                            int varsLength = vars.length;
+                            for (int vi = 0; vi < varsLength; vi++) {
+                                String v = vars[vi].trim();
+                                if (! v.equals("")) {
+                                    currentVars.add(vars[vi].trim());
+                                }
                             }
-                            currentVar += line[i].toLowerCase();
+                        } else if (columnIndex.get(i).equals("code")) {
+                            currentCode = line[i].toLowerCase().trim();
                         } else if (columnIndex.get(i).equals("model")) {
                             entries.put(modelIndex.get(modelId), line[i].toLowerCase());
                             modelId++;
@@ -93,22 +102,27 @@ public enum LookupCodesEnum {
                             entries.put(columnIndex.get(i), line[i]);
                         }
                     }
-                    
                     // First, put the entries into the main lookup.
-                    aceLookupMap.put(currentVar, entries);
+                    if (!currentCode.equals("")) {
+                        for (String currentVar : currentVars) {
+                            currentVar += "_";
+                            currentVar += currentCode;
+                            LOG.debug("Current Code: {}", currentVar);                        
+                            aceLookupMap.put(currentVar, entries);
+                        }
+                    }
 
                     // IF there are models, build the model-specific mappings
                     if (modelId != 0) {
-                        String[] vars = currentVar.split("[_]");
-                        for (String model : modelIndex) {
-                            String modelVar = model+"_"+vars[0]+"_"+entries.get(model);
-                            modelLookupMap.put(modelVar, vars[1]);
+                        for (String currentVar : currentVars) {
+                            for (String model : modelIndex) {
+                                String modelVar = model+"_"+currentVar+"_"+entries.get(model);
+                                modelLookupMap.put(modelVar, currentCode);
+                            }
                         }
                     }
                 }
                 reader.close();
-                LOG.debug("Model Lookup: {}", modelLookupMap.toString());
-                LOG.debug("Ace Lookup: {}", aceLookupMap.toString());
             } else {
                 LOG.error("Missing embedded CSV file for configuration. Lookup Codes will be blank.");
             }
