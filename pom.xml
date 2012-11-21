@@ -47,14 +47,14 @@
     </properties>
 
     <dependencies>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.agmip</groupId>
             <artifactId>agmip-core</artifactId>
             <version>0.15-SNAPSHOT</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
+            <artifactId>logback-classic</artifactId>
             <version>1.0.7</version>
         </dependency>
         <dependency>

@@ -95,6 +95,7 @@ public enum LookupCodesEnum {
                             }
                         } else if (columnIndex.get(i).equals("code")) {
                             currentCode = line[i].toLowerCase().trim();
+                            entries.put("code", currentCode);
                         } else if (columnIndex.get(i).equals("model")) {
                             entries.put(modelIndex.get(modelId), line[i].toLowerCase());
                             modelId++;
