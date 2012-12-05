@@ -241,7 +241,8 @@ public class AcePathfinderUtil {
      */
     public static HashMap traverseToPoint(HashMap m, String p) {
         HashMap pointer = m;
-        String[] b = p.split(":");
+        String[] base = p.split("[@]");
+        String[] b = base[0].split("[:]");
         int bl = b.length;
         for(int i=0; i < bl; i++) {
             pointer = (HashMap) pointer.get(b[i]);

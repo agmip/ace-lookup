@@ -3,7 +3,7 @@
 
     <groupId>org.agmip</groupId>
     <artifactId>ace-lookup</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>ace-lookup</name>
@@ -30,7 +30,7 @@
         <url>https://github.com/agmip/ace-lookup</url>
         <connection>scm:git:git://github.com/agmip/ace-lookup.git</connection>
         <developerConnection>scm:git:git@github.com:agmip/ace-lookup.git</developerConnection>
-      <tag>v1.0</tag>
+      <tag>ace-lookup-1.0.1</tag>
   </scm>
 
     <developers>
@@ -47,11 +47,6 @@
     </properties>
 
     <dependencies>
-        <!-- <dependency>
-            <groupId>org.agmip</groupId>
-            <artifactId>agmip-core</artifactId>
-            <version>0.15-SNAPSHOT</version>
-        </dependency> -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
