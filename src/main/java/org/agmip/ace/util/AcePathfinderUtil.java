@@ -96,11 +96,42 @@ public class AcePathfinderUtil {
      * according to the AcePathfinder.
      *
      * @param m the HashMap to add the variable to.
+     * @param var Variable to lookup
+     * @param val the value to insert into the HashMap
+     * @param index the index of the sub map in the array; if it's event, then
+     * index is for that particular kind of event only; if index is out of
+     * boundary, then try the last element in the array
+     */
+    public static void insertValue(HashMap m, String var, String val, int index) {
+        insertValue(m, var, val, null, index);
+    }
+    
+    /**
+     * Inserts the variable in the appropriate place in a {@link HashMap},
+     * according to the AcePathfinder.
+     *
+     * @param m the HashMap to add the variable to.
      * @param var the variable to lookup in the AcePathfinder
      * @param val the value to insert into the HashMap
      * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
      */
     public static void insertValue(HashMap m, String var, String val, String path) {
+        insertValue(m, var, val, path, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Inserts the variable in the appropriate place in a {@link HashMap},
+     * according to the AcePathfinder.
+     *
+     * @param m the HashMap to add the variable to.
+     * @param var the variable to lookup in the AcePathfinder
+     * @param val the value to insert into the HashMap
+     * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
+     * @param index the index of the sub map in the array; if it's event, then
+     * index is for that particular kind of event only; if index is out of
+     * boundary, then try the last element in the array
+     */
+    public static void insertValue(HashMap m, String var, String val, String path, int index) {
         if (m == null || var == null) { return; }
         if (path == null) {
             path = AcePathfinder.INSTANCE.getPath(var);
@@ -123,8 +154,24 @@ public class AcePathfinderUtil {
                         ArrayList a = (ArrayList) pointer.get(temp[1]);
                         if( a.isEmpty() )
                             newRecord(m, paths[i]);
-                        HashMap d = (HashMap) a.get(a.size()-1);
+                        HashMap d = null;
+                        index = index > 0 ? index : 0;
                         if( isEvent ) {
+                            int count = 0;
+                            for (int j = 0; j < a.size(); j++) {
+                                d = (HashMap) a.get(j);
+                                if( d.containsKey("event") ) {
+                                    if (((String) d.get("event")).equals(temp[2])) {
+                                        if (count == index) {
+                                            break;
+                                        }
+                                        count++;
+                                    }
+                                }
+                            }
+                            if (d == null) {
+                                d = (HashMap) a.get(a.size()-1);
+                            }
                             if( d.containsKey("event") ) {
                                 if ( ! ((String) d.get("event")).equals(temp[2])) {
                                     // Uh oh, we have a new event without newRecord being called
@@ -136,11 +183,17 @@ public class AcePathfinderUtil {
                                 // New event
                                 d.put("event", temp[2]);
                             }
+                        } else {
+                            if (index < a.size()) {
+                                d = (HashMap) a.get(index);
+                            } else {
+                                d = (HashMap) a.get(a.size()-1);
+                            }
                         }
                         if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
                             var = "date";
                         }
-                        if (d.containsKey(var)) {
+                        if (d.containsKey(var) && index >= a.size()) {
                             newRecord(m, paths[i]);
                             d = (HashMap) a.get(a.size()-1);
                             if (isEvent) d.put("event", temp[2]);
