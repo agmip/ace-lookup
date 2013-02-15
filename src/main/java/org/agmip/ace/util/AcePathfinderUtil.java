@@ -156,6 +156,7 @@ public class AcePathfinderUtil {
                             newRecord(m, paths[i]);
                         HashMap d = null;
                         index = index > 0 ? index : 0;
+                        int lastIndex = a.size();
                         if( isEvent ) {
                             int count = 0;
                             for (int j = 0; j < a.size(); j++) {
@@ -163,6 +164,7 @@ public class AcePathfinderUtil {
                                 if( d.containsKey("event") ) {
                                     if (((String) d.get("event")).equals(temp[2])) {
                                         if (count == index) {
+                                            lastIndex = j;
                                             break;
                                         }
                                         count++;
@@ -189,14 +191,32 @@ public class AcePathfinderUtil {
                             } else {
                                 d = (HashMap) a.get(a.size()-1);
                             }
+                            lastIndex = index;
                         }
                         if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
                             var = "date";
                         }
-                        if (d.containsKey(var) && index >= a.size()) {
-                            newRecord(m, paths[i]);
-                            d = (HashMap) a.get(a.size()-1);
-                            if (isEvent) d.put("event", temp[2]);
+                        while (d.containsKey(var)) {
+                            if (lastIndex >= a.size()) {
+                                newRecord(m, paths[i]);
+                                d = (HashMap) a.get(a.size()-1);
+                                if (isEvent) d.put("event", temp[2]);
+                            } else {
+                                if (isEvent) {
+                                    for (int j = lastIndex + 1; j < a.size(); j++) {
+                                        d = (HashMap) a.get(j);
+                                        if (d.containsKey("event")) {
+                                            if (((String) d.get("event")).equals(temp[2])) {
+                                                lastIndex = j;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    d = (HashMap) a.get(lastIndex + 1);
+                                    lastIndex++;
+                                }
+                            }
                         }
                         d.put(var, val);
                     } else {
