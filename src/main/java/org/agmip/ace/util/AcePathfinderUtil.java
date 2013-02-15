@@ -197,7 +197,7 @@ public class AcePathfinderUtil {
                             var = "date";
                         }
                         while (d.containsKey(var)) {
-                            if (lastIndex >= a.size()) {
+                            if (lastIndex >= a.size() - 1) {
                                 newRecord(m, paths[i]);
                                 d = (HashMap) a.get(a.size()-1);
                                 if (isEvent) d.put("event", temp[2]);
