@@ -98,25 +98,10 @@ public class AcePathfinderUtil {
      * @param m the HashMap to add the variable to.
      * @param var Variable to lookup
      * @param val the value to insert into the HashMap
-     * @param index the index of the sub map in the array; if it's event, then
-     * index is for that particular kind of event only; if index is out of
-     * boundary, then try the last element in the array
+     * @param eventAppendMode True for add variable into last same type event; False for add to last event without type check
      */
-    public static void insertValue(HashMap m, String var, String val, int index) {
-        insertValue(m, var, val, null, index);
-    }
-    
-    /**
-     * Inserts the variable in the appropriate place in a {@link HashMap},
-     * according to the AcePathfinder.
-     *
-     * @param m the HashMap to add the variable to.
-     * @param var the variable to lookup in the AcePathfinder
-     * @param val the value to insert into the HashMap
-     * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
-     */
-    public static void insertValue(HashMap m, String var, String val, String path) {
-        insertValue(m, var, val, path, Integer.MAX_VALUE);
+    public static void insertValue(HashMap m, String var, String val, boolean eventAppendMode) {
+        insertValue(m, var, val, null, eventAppendMode);
     }
 
     /**
@@ -127,11 +112,22 @@ public class AcePathfinderUtil {
      * @param var the variable to lookup in the AcePathfinder
      * @param val the value to insert into the HashMap
      * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
-     * @param index the index of the sub map in the array; if it's event, then
-     * index is for that particular kind of event only; if index is out of
-     * boundary, then try the last element in the array
      */
-    public static void insertValue(HashMap m, String var, String val, String path, int index) {
+    public static void insertValue(HashMap m, String var, String val, String path) {
+        insertValue(m, var, val, path, false);
+    }
+
+    /**
+     * Inserts the variable in the appropriate place in a {@link HashMap},
+     * according to the AcePathfinder.
+     *
+     * @param m the HashMap to add the variable to.
+     * @param var the variable to lookup in the AcePathfinder
+     * @param val the value to insert into the HashMap
+     * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
+     * @param eventAppendMode True for add variable into last same type event; False for add to last event without type check
+     */
+    public static void insertValue(HashMap m, String var, String val, String path, boolean eventAppendMode) {
         if (m == null || var == null) { return; }
         if (path == null) {
             path = AcePathfinder.INSTANCE.getPath(var);
@@ -154,25 +150,18 @@ public class AcePathfinderUtil {
                         ArrayList a = (ArrayList) pointer.get(temp[1]);
                         if( a.isEmpty() )
                             newRecord(m, paths[i]);
-                        HashMap d = null;
-                        index = index > 0 ? index : 0;
-                        int lastIndex = a.size();
+                        HashMap d = (HashMap) a.get(a.size()-1);
                         if( isEvent ) {
-                            int count = 0;
-                            for (int j = 0; j < a.size(); j++) {
-                                d = (HashMap) a.get(j);
-                                if( d.containsKey("event") ) {
-                                    if (((String) d.get("event")).equals(temp[2])) {
-                                        if (count == index) {
-                                            lastIndex = j;
+                            if (eventAppendMode) {
+                                for (int j = a.size() - 1; j > -1; j--) {
+                                    HashMap tmp = (HashMap) a.get(j);
+                                    if( tmp.containsKey("event") ) {
+                                        if (((String) tmp.get("event")).equals(temp[2])) {
+                                            d = tmp;
                                             break;
                                         }
-                                        count++;
                                     }
                                 }
-                            }
-                            if (d == null) {
-                                d = (HashMap) a.get(a.size()-1);
                             }
                             if( d.containsKey("event") ) {
                                 if ( ! ((String) d.get("event")).equals(temp[2])) {
@@ -185,38 +174,14 @@ public class AcePathfinderUtil {
                                 // New event
                                 d.put("event", temp[2]);
                             }
-                        } else {
-                            if (index < a.size()) {
-                                d = (HashMap) a.get(index);
-                            } else {
-                                d = (HashMap) a.get(a.size()-1);
-                            }
-                            lastIndex = index;
                         }
                         if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
                             var = "date";
                         }
-                        while (d.containsKey(var)) {
-                            if (lastIndex >= a.size() - 1) {
-                                newRecord(m, paths[i]);
-                                d = (HashMap) a.get(a.size()-1);
-                                if (isEvent) d.put("event", temp[2]);
-                            } else {
-                                if (isEvent) {
-                                    for (int j = lastIndex + 1; j < a.size(); j++) {
-                                        d = (HashMap) a.get(j);
-                                        if (d.containsKey("event")) {
-                                            if (((String) d.get("event")).equals(temp[2])) {
-                                                lastIndex = j;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    d = (HashMap) a.get(lastIndex + 1);
-                                    lastIndex++;
-                                }
-                            }
+                        if (d.containsKey(var)) {
+                            newRecord(m, paths[i]);
+                            d = (HashMap) a.get(a.size()-1);
+                            if (isEvent) d.put("event", temp[2]);
                         }
                         d.put(var, val);
                     } else {
