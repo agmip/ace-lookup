@@ -96,11 +96,38 @@ public class AcePathfinderUtil {
      * according to the AcePathfinder.
      *
      * @param m the HashMap to add the variable to.
+     * @param var Variable to lookup
+     * @param val the value to insert into the HashMap
+     * @param eventAppendMode True for add variable into last same type event; False for add to last event without type check
+     */
+    public static void insertValue(HashMap m, String var, String val, boolean eventAppendMode) {
+        insertValue(m, var, val, null, eventAppendMode);
+    }
+
+    /**
+     * Inserts the variable in the appropriate place in a {@link HashMap},
+     * according to the AcePathfinder.
+     *
+     * @param m the HashMap to add the variable to.
      * @param var the variable to lookup in the AcePathfinder
      * @param val the value to insert into the HashMap
      * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
      */
     public static void insertValue(HashMap m, String var, String val, String path) {
+        insertValue(m, var, val, path, false);
+    }
+
+    /**
+     * Inserts the variable in the appropriate place in a {@link HashMap},
+     * according to the AcePathfinder.
+     *
+     * @param m the HashMap to add the variable to.
+     * @param var the variable to lookup in the AcePathfinder
+     * @param val the value to insert into the HashMap
+     * @param path use a custom path vs. a lookup path, useful if dealing with custom variables
+     * @param eventAppendMode True for add variable into last same type event; False for add to last event without type check
+     */
+    public static void insertValue(HashMap m, String var, String val, String path, boolean eventAppendMode) {
         if (m == null || var == null) { return; }
         if (path == null) {
             path = AcePathfinder.INSTANCE.getPath(var);
@@ -125,6 +152,17 @@ public class AcePathfinderUtil {
                             newRecord(m, paths[i]);
                         HashMap d = (HashMap) a.get(a.size()-1);
                         if( isEvent ) {
+                            if (eventAppendMode) {
+                                for (int j = a.size() - 1; j > -1; j--) {
+                                    HashMap tmp = (HashMap) a.get(j);
+                                    if( tmp.containsKey("event") ) {
+                                        if (((String) tmp.get("event")).equals(temp[2])) {
+                                            d = tmp;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                             if( d.containsKey("event") ) {
                                 if ( ! ((String) d.get("event")).equals(temp[2])) {
                                     // Uh oh, we have a new event without newRecord being called
