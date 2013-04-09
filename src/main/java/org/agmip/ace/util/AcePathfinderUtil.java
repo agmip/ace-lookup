@@ -175,9 +175,10 @@ public class AcePathfinderUtil {
                                 d.put("event", temp[2]);
                             }
                         }
-                        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
-                            var = "date";
-                        }
+                        var = setEventDateVar(var, isEvent);
+//                        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
+//                            var = "date";
+//                        }
                         if (d.containsKey(var)) {
                             newRecord(m, paths[i]);
                             d = (HashMap) a.get(a.size()-1);
@@ -302,7 +303,10 @@ public class AcePathfinderUtil {
      */
     public static String setEventDateVar(String var, boolean isEvent) {
         var = var.toLowerCase();
-        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
+//        if (isEvent && (var.equals("pdate") || var.equals("idate") || var.equals("fedate") | var.equals("omdat") || var.equals("mladat") || var.equals("mlrdat") || var.equals("cdate") || var.equals("tdate") || var.equals("hadat"))) {
+//            var = "date";
+//        }
+        if (isEvent && isDate(var) && !var.equals("edate")) {
             var = "date";
         }
         return var;
