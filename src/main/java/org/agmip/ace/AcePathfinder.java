@@ -61,7 +61,7 @@ public enum AcePathfinder {
                         } else if (line[2].toLowerCase().equals("soil_id")) {
                             if( path != null ) path = ",soil";
                         }
-                        if( pathfinder.containsKey(line[4].toLowerCase()) ) LOG.error("Conflict with variable: "+line[0]+" Original Value: "+getPath(line[0])+" New Value: "+path);
+                        if( pathfinder.containsKey(line[4].toLowerCase()) ) LOG.debug("Conflict with variable: "+line[0]+" Original Value: "+getPath(line[0])+" New Value: "+path);
                         if( path != null ) {
                             setPath(line[2], path);
                         } 
