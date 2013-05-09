@@ -83,7 +83,7 @@ public enum AcePathfinder {
     private String setGroupMatch(String groupOrder) {
         try {
             int id = new BigInteger(groupOrder).intValue();
-            if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2211 ) {
+            if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2091 || id == 2101 || id == 2111 || id == 2141 || id == 2211 ) {
                 // Global bucket
                 return "";
             } else if ( ( id >= 5001 && id <= 5013 ) || id == 5041 ) {
@@ -119,16 +119,16 @@ public enum AcePathfinder {
             } else if ( id == 2122 ) {
                 // Events - tillage
                 return "management@events!tillage";
-            } else if ( id == 2141 || id == 2142 ) {
+            } else if ( id == 2142 ) {
                 // Events - harvest
                 return "management@events!harvest";
-            } else if ( id == 2091 || id == 2092 ) {
+            } else if ( id == 2092 ) {
                 // Events - organic material
                 return "management@events!organic_matter";
-            } else if ( id == 2111 || id == 2112 ) {
+            } else if ( id == 2112 ) {
                 // Events - chemical
                 return "management@events!chemicals";
-            } else if ( id == 2101 || id == 2102 ) {
+            } else if ( id == 2102 ) {
                 // Events - mulch
                 return "management@events!mulch";
             } else if ( id >= 2502 && id <= 2510 ) {
