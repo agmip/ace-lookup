@@ -66,7 +66,13 @@ public enum AcePathfinder {
                             setPath(line[2], path);
                             String codeSynon = line[18].trim();
                             if (!codeSynon.equals("")) {
-                                setPath(codeSynon, path);
+                                String[] keys = codeSynon.split("[\\s,]");
+                                for (String key : keys) {
+                                    if (!key.trim().equals("")) {
+                                        setPath(key.trim(), path);
+                                    }
+                                }
+                                
                             }
                         } 
                         if (line[8].toLowerCase().equals("date")) {
