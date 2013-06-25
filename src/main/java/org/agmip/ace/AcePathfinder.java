@@ -64,6 +64,10 @@ public enum AcePathfinder {
                         if( pathfinder.containsKey(line[4].toLowerCase()) ) LOG.debug("Conflict with variable: "+line[0]+" Original Value: "+getPath(line[0])+" New Value: "+path);
                         if( path != null ) {
                             setPath(line[2], path);
+                            String codeSynon = line[18].trim();
+                            if (!codeSynon.equals("")) {
+                                setPath(codeSynon, path);
+                            }
                         } 
                         if (line[8].toLowerCase().equals("date")) {
                             datefinder.add(line[2].toLowerCase());
@@ -86,7 +90,7 @@ public enum AcePathfinder {
             if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2091 || id == 2101 || id == 2111 || id == 2141 || id == 2211 ) {
                 // Global bucket
                 return "";
-            } else if ( ( id >= 5001 && id <= 5013 ) || id == 5041 ) {
+            } else if ( ( id >= 5001 && id <= 5013 ) || id == 5041 || id == 5046 ) {
                 // Weather Global bucket
                 return "weather";
             } else if ( id == 5052 ) {
