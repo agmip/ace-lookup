@@ -16,6 +16,7 @@ public enum AcePathfinder {
     INSTANCE;
 
     private final HashMap<String, String> pathfinder = new HashMap<String, String>();
+    private final HashMap<String, String> pathfinderAlias = new HashMap<String, String>();
     private final ArrayList<String> datefinder = new ArrayList<String>();
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinder");
 
@@ -31,6 +32,8 @@ public enum AcePathfinder {
             // Temporary hardwire
             if (lookup.toLowerCase().endsWith("cul_id")) {
                 return pathfinder.get("cul_id");
+            } else if (isAlias(lookup.toLowerCase())) {
+                return pathfinder.get(getAlias(lookup.toLowerCase()));
             }
     		return pathfinder.get(lookup.toLowerCase());
     	} else {
@@ -45,6 +48,18 @@ public enum AcePathfinder {
 
     public boolean isDate(String lookup) {
         return datefinder.contains(lookup);
+    }
+    
+    public boolean isAlias(String lookup) {
+        return pathfinderAlias.containsKey(lookup);
+    }
+    
+    public String getAlias(String lookup) {
+        if (isAlias(lookup)) {
+            return pathfinderAlias.get(lookup);
+        } else {
+            return lookup;
+        }
     }
 
     private void loadFromEmbeddedCSV(InputStream res) {
@@ -69,7 +84,7 @@ public enum AcePathfinder {
                                 String[] keys = codeSynon.split("[\\s,]");
                                 for (String key : keys) {
                                     if (!key.trim().equals("")) {
-                                        setPath(key.trim(), path);
+                                        pathfinderAlias.put(key.trim().toLowerCase(), line[2].toLowerCase());
                                     }
                                 }
                                 

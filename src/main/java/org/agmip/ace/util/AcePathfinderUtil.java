@@ -130,6 +130,7 @@ public class AcePathfinderUtil {
     public static void insertValue(HashMap m, String var, String val, String path, boolean eventAppendMode) {
         if (m == null || var == null) { return; }
         if (path == null) {
+            var = AcePathfinder.INSTANCE.getAlias(var);
             path = AcePathfinder.INSTANCE.getPath(var);
         }
         if (path == null) { path = ""; }
