@@ -105,7 +105,7 @@ public enum AcePathfinder {
         }
     }
 
-    private String setGroupMatch(String groupOrder) {
+    public String setGroupMatch(String groupOrder) {
         try {
             int id = new BigInteger(groupOrder).intValue();
             if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2091 || id == 2101 || id == 2111 || id == 2141 || id == 2211 ) {
