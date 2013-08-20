@@ -29,6 +29,14 @@ public enum AcePathfinder {
 
     public String getPath(String lookup) {
     	if (lookup != null ) {
+            if (lookup.contains("__")) {
+                String[] tmp = lookup.split("__");
+                if (tmp.length > 1 && !tmp[1].trim().equals("")) {
+                    return setSuffixMatch(tmp[1].trim());
+                } else {
+                    lookup = tmp[0];
+                }
+            }
             // Temporary hardwire
             if (lookup.toLowerCase().endsWith("cul_id")) {
                 return pathfinder.get("cul_id");
@@ -104,8 +112,26 @@ public enum AcePathfinder {
             throw new RuntimeException(ex);
         }
     }
+    
+    private String setSuffixMatch(String suffix) {
+        if (suffix == null) {
+            return "";
+        }
+        suffix = suffix.toLowerCase().trim();
+        if (suffix.equals("soil")) {
+            return setGroupMatch("4051");
+        } else if (suffix.equals("soillayer")) {
+            return setGroupMatch("4052");
+        } else if (suffix.equals("weather")) {
+            return setGroupMatch("5041");
+        } else if (suffix.equals("weatherdaily")) {
+            return setGroupMatch("5052");
+        } else {
+            return "";
+        }
+    }
 
-    public String setGroupMatch(String groupOrder) {
+    private String setGroupMatch(String groupOrder) {
         try {
             int id = new BigInteger(groupOrder).intValue();
             if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2091 || id == 2101 || id == 2111 || id == 2141 || id == 2211 ) {
