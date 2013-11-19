@@ -16,21 +16,32 @@ public enum AcePathfinder {
     INSTANCE;
 
     private final HashMap<String, String> pathfinder = new HashMap<String, String>();
+    private final HashMap<String, String> pathfinderAlias = new HashMap<String, String>();
     private final ArrayList<String> datefinder = new ArrayList<String>();
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinder");
 
     AcePathfinder() {
-        InputStream master = getClass().getClassLoader().getResourceAsStream("pathfinder.csv");
-        InputStream observed = getClass().getClassLoader().getResourceAsStream("obs_pathfinder.csv");
+        InputStream master = getClass().getClassLoader().getResourceAsStream("pathfinder_1.0.csv");
+        InputStream observed = getClass().getClassLoader().getResourceAsStream("obs_pathfinder_1.0.csv");
         loadFromEmbeddedCSV(master);
         loadFromEmbeddedCSV(observed);
     }
 
     public String getPath(String lookup) {
     	if (lookup != null ) {
+            if (lookup.contains("__")) {
+                String[] tmp = lookup.split("__");
+                if (tmp.length > 1 && !tmp[1].trim().equals("")) {
+                    return setSuffixMatch(tmp[1].trim());
+                } else {
+                    lookup = tmp[0];
+                }
+            }
             // Temporary hardwire
             if (lookup.toLowerCase().endsWith("cul_id")) {
                 return pathfinder.get("cul_id");
+            } else if (isAlias(lookup.toLowerCase())) {
+                return pathfinder.get(getAlias(lookup.toLowerCase()));
             }
     		return pathfinder.get(lookup.toLowerCase());
     	} else {
@@ -45,6 +56,18 @@ public enum AcePathfinder {
 
     public boolean isDate(String lookup) {
         return datefinder.contains(lookup);
+    }
+    
+    public boolean isAlias(String lookup) {
+        return pathfinderAlias.containsKey(lookup);
+    }
+    
+    public String getAlias(String lookup) {
+        if (isAlias(lookup)) {
+            return pathfinderAlias.get(lookup);
+        } else {
+            return lookup;
+        }
     }
 
     private void loadFromEmbeddedCSV(InputStream res) {
@@ -64,6 +87,16 @@ public enum AcePathfinder {
                         if( pathfinder.containsKey(line[4].toLowerCase()) ) LOG.debug("Conflict with variable: "+line[0]+" Original Value: "+getPath(line[0])+" New Value: "+path);
                         if( path != null ) {
                             setPath(line[2], path);
+                            String codeSynon = line[18].trim();
+                            if (!codeSynon.equals("")) {
+                                String[] keys = codeSynon.split("[\\s,]");
+                                for (String key : keys) {
+                                    if (!key.trim().equals("")) {
+                                        pathfinderAlias.put(key.trim().toLowerCase(), line[2].toLowerCase());
+                                    }
+                                }
+                                
+                            }
                         } 
                         if (line[8].toLowerCase().equals("date")) {
                             datefinder.add(line[2].toLowerCase());
@@ -79,14 +112,32 @@ public enum AcePathfinder {
             throw new RuntimeException(ex);
         }
     }
+    
+    private String setSuffixMatch(String suffix) {
+        if (suffix == null) {
+            return "";
+        }
+        suffix = suffix.toLowerCase().trim();
+        if (suffix.equals("soil")) {
+            return setGroupMatch("4051");
+        } else if (suffix.equals("soillayer")) {
+            return setGroupMatch("4052");
+        } else if (suffix.equals("weather")) {
+            return setGroupMatch("5041");
+        } else if (suffix.equals("weatherdaily")) {
+            return setGroupMatch("5052");
+        } else {
+            return "";
+        }
+    }
 
     private String setGroupMatch(String groupOrder) {
         try {
             int id = new BigInteger(groupOrder).intValue();
-            if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2211 ) {
+            if( ( id >= 1011 && id <= 1081 ) || id == 2011 || id == 2031 || id == 2121 || id == 2071 || id == 2081 || id == 2091 || id == 2101 || id == 2111 || id == 2141 || id == 2211 ) {
                 // Global bucket
                 return "";
-            } else if ( ( id >= 5001 && id <= 5013 ) || id == 5041 ) {
+            } else if ( ( id >= 5001 && id <= 5013 ) || id == 5041 || id == 5046 ) {
                 // Weather Global bucket
                 return "weather";
             } else if ( id == 5052 ) {
@@ -119,16 +170,16 @@ public enum AcePathfinder {
             } else if ( id == 2122 ) {
                 // Events - tillage
                 return "management@events!tillage";
-            } else if ( id == 2141 || id == 2142 ) {
+            } else if ( id == 2142 ) {
                 // Events - harvest
                 return "management@events!harvest";
-            } else if ( id == 2091 || id == 2092 ) {
+            } else if ( id == 2092 ) {
                 // Events - organic material
                 return "management@events!organic_matter";
-            } else if ( id == 2111 || id == 2112 ) {
+            } else if ( id == 2112 ) {
                 // Events - chemical
                 return "management@events!chemicals";
-            } else if ( id == 2101 || id == 2102 ) {
+            } else if ( id == 2102 ) {
                 // Events - mulch
                 return "management@events!mulch";
             } else if ( id >= 2502 && id <= 2510 ) {

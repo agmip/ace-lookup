@@ -20,10 +20,10 @@ public enum LookupCodesEnum {
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.ace.LookupCodesEnum");
 
     LookupCodesEnum() {
-        InputStream metadata = getClass().getClassLoader().getResourceAsStream("metadata_codes.csv");
-        InputStream crops = getClass().getClassLoader().getResourceAsStream("crop_codes.csv");
-        InputStream management = getClass().getClassLoader().getResourceAsStream("management_codes.csv");
-        InputStream other = getClass().getClassLoader().getResourceAsStream("other_codes.csv");
+        InputStream metadata = getClass().getClassLoader().getResourceAsStream("metadata_codes_1.0.csv");
+        InputStream crops = getClass().getClassLoader().getResourceAsStream("crop_codes_1.0.csv");
+        InputStream management = getClass().getClassLoader().getResourceAsStream("management_codes_1.0.csv");
+        InputStream other = getClass().getClassLoader().getResourceAsStream("other_codes_1.0.csv");
 
         loadEmbeddedCSVFile(metadata);
         loadEmbeddedCSVFile(crops);
@@ -57,12 +57,12 @@ public enum LookupCodesEnum {
                         columnIndex.add("cn");
                     } else if (currentCol.startsWith("latin")) {
                         columnIndex.add("ln");
-                    } else if (currentCol.endsWith("_code")) {
+                    } else if (currentCol.endsWith("_code") || currentCol.endsWith(" code")) {
                         if (currentCol.equals("crop_code")) {
                             columnIndex.add("code");
                         } else {
                             columnIndex.add("model");
-                            String[] tmp = currentCol.split("[_]");
+                            String[] tmp = currentCol.split("[_ ]");
                             modelIndex.add(tmp[0]);
                         }
                     } else {
@@ -72,6 +72,7 @@ public enum LookupCodesEnum {
 
                 if (columnIndex.isEmpty()) {
                     LOG.error("Invalid embedded CSV file for configuration. Lookup Codes will be blank.");
+                    reader.close();
                     return;
                 }
 
