@@ -21,8 +21,8 @@ public enum AcePathfinder {
     private final Logger LOG = LoggerFactory.getLogger("org.agmip.util.AcePathfinder");
 
     AcePathfinder() {
-        InputStream master = getClass().getClassLoader().getResourceAsStream("pathfinder.csv");
-        InputStream observed = getClass().getClassLoader().getResourceAsStream("obs_pathfinder.csv");
+        InputStream master = getClass().getClassLoader().getResourceAsStream("pathfinder_1.0.csv");
+        InputStream observed = getClass().getClassLoader().getResourceAsStream("obs_pathfinder_1.0.csv");
         loadFromEmbeddedCSV(master);
         loadFromEmbeddedCSV(observed);
     }
