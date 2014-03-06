@@ -77,7 +77,7 @@ public enum AcePathfinder {
                 String[] line;
                 reader.readNext(); // Skip the first line
                 while(( line = reader.readNext()) != null) {
-                    if(! line[23].equals("-2") ) {
+                    if(! line[24].equals("-2") ) {
                         String path = setGroupMatch(line[15]);
                         if(line[2].toLowerCase().equals("wst_id")) {
                             if( path != null ) path = ",weather";
@@ -87,7 +87,7 @@ public enum AcePathfinder {
                         if( pathfinder.containsKey(line[4].toLowerCase()) ) LOG.debug("Conflict with variable: "+line[0]+" Original Value: "+getPath(line[0])+" New Value: "+path);
                         if( path != null ) {
                             setPath(line[2], path);
-                            String codeSynon = line[18].trim();
+                            String codeSynon = line[19].trim();
                             if (!codeSynon.equals("")) {
                                 String[] keys = codeSynon.split("[\\s,]");
                                 for (String key : keys) {
