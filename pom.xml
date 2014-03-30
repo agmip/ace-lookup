@@ -3,7 +3,7 @@
 
     <groupId>org.agmip</groupId>
     <artifactId>ace-lookup</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.2</version>
     <packaging>jar</packaging>
 
     <name>ace-lookup</name>
@@ -30,7 +30,7 @@
         <url>https://github.com/agmip/ace-lookup</url>
         <connection>scm:git:git://github.com/agmip/ace-lookup.git</connection>
         <developerConnection>scm:git:git@github.com:agmip/ace-lookup.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>ace-lookup-1.2.2</tag>
   </scm>
 
     <developers>
